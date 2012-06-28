@@ -1,0 +1,38 @@
+<html>
+<head>
+<script src="jquery.js" type="text/javascript"></script>
+<script src="boxers.js" type="text/javascript"></script>
+<script type="text/javascript">
+var theseboxes = [{"left":15,"top":16,"width":171,"height":55,"parentWidth":200,"parentHeight":259},{"left":15,"top":77,"width":73,"height":95,"parentWidth":200,"parentHeight":259},{"left":93,"top":78,"width":91,"height":45,"parentWidth":200,"parentHeight":259},{"left":95,"top":126,"width":89,"height":44,"parentWidth":200,"parentHeight":259},{"left":19,"top":178,"width":82,"height":63,"parentWidth":200,"parentHeight":259},{"left":106,"top":178,"width":76,"height":63,"parentWidth":200,"parentHeight":259}];
+
+$(document).ready(function() {
+	var boxes = new boxers.browse('ayo',theseboxes);
+	
+	$("#clear").click(function() {
+		boxes.clear();
+	});
+});
+
+</script>
+<style type='text/css'>
+.box {
+	position:absolute;
+	background:red;
+	opacity:.5;
+}
+.box-browser {
+	width:100%;
+	height:100%;
+	overflow: hidden;
+}
+.boxWrapper {
+	position: absolute;
+}
+.zoom {
+}
+</style>
+</head>
+<body>
+<img id='ayo' src="sample.png" width="600" border="1"/>
+</body>
+</html>

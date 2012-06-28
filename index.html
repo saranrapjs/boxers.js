@@ -1,148 +1,24 @@
 <html>
 <head>
 <script src="jquery.js" type="text/javascript"></script>
+<script src="boxers.js" type="text/javascript"></script>
 <script type="text/javascript">	
-var boxers = function(element,options) {
-	options = (options) ? options : {};
-	var self = this,
-		image = document.getElementById(element);
-	this.callbacks = [];
-	this.boxes = [];
-	image.onload = function() {
-		self.load(image);
-	}
-	return self;
-};
-boxers.prototype.load = function(image) {
-	var self = this;
-	this.start = {x:null,y:null};
-	this.end = {x:null,y:null};
-	this.wrapper = this.wrap(image);
-	this.image.ondragstart = function() { return false; }
-	this.wrapper.onmousedown = function(event) {
-		self.startingPoint(event);
-		self.startRecording();
-	}
-}
-boxers.prototype.wrap = function(element) {
-	var wrapper = document.createElement('div');
-	this.image = wrapper.appendChild(element.cloneNode(true)); //replace reference to original
-	element.parentNode.replaceChild(wrapper, element);
-	wrapper.style.position = 'relative';
-	wrapper.style.width = this.image.offsetWidth;
-	wrapper.style.height = this.image.offsetHeight;
-	return wrapper;
-}
-boxers.prototype.startRecording = function() {
-	var self = this;
-	function finished(event) {
-		self.endingPoint(event);
-		self.seal();
-		self.wrapper.onmousemove = self.wrapper.onmouseout = null;
-	}
-	this.wrapper.onmousemove = function(event) {
-		self.endingPoint(event);
-		return true;
-	}
-	function checkChild(child,parent) {
-		while ( child.parentNode ) {
-			if( (child = child.parentNode) == parent ) return true;
-		}
-		return false;
-	}
-	this.wrapper.onmouseup = finished;
-	this.wrapper.onmouseout = function(event) {
-		var parent = (event.toElement) ? event.toElement : event.relatedTarget;
-	}
-}
-boxers.prototype.seal = function() {
-	var offset = {
-		left:Math.min(this.start.x,this.end.x),
-		top:Math.min(this.start.y,this.end.y),
-		width:this.width,
-		height:this.height
-	}
-	this.box = null;
-	this.created(offset);
-}
-boxers.prototype.clickOffsetFromElement = function(e,element) {
-	var elementOffset = this.offset(element),
-		offsetY = e.pageY,
-		offsetX = e.pageX;
-	return  { x: offsetX - elementOffset.left, y: offsetY - elementOffset.top };
-}
 
-boxers.prototype.startingPoint = function( event ) {
-	var offset = this.clickOffsetFromElement(event,this.wrapper);
-	this.start.x = this.end.x = offset.x;
-	this.start.y = this.end.y = offset.y;
-	this.width = this.height = 0;
-	this.box = this.createBox(this.start.x,this.start.y);
-	this.boxes.push(this.box);
-}
-boxers.prototype.createBox = function(x,y) {
-	var box = document.createElement('div');
-	box.setAttribute('class','box'); 
-	box.style.left = x; 
-	box.style.top = y; 
-	box.style.width = 1; 
-	box.style.height = 1; 
-	this.wrapper.appendChild(box); //replace reference to original
-	return box;
-}
-boxers.prototype.endingPoint = function( event ) {
-	var offset = this.clickOffsetFromElement(event,this.wrapper);
-	this.end.x = offset.x;
-	this.end.y = offset.y;
-	var deltaX = this.start.x - this.end.x,
-		deltaY = this.start.y - this.end.y,
-		width = Math.abs(deltaX),
-		height = Math.abs(deltaY);
-	this.width = width;
-	this.height = height;
-	if (deltaX > 0) this.box.style.left = this.end.x;
-	if (deltaY > 0) this.box.style.top = this.end.y;
-	this.box.style.width = width;
-	this.box.style.height = height;
-}
 
-//cribbed from http://stackoverflow.com/questions/442404/dynamically-retrieve-html-element-x-y-position-with-javascript
-boxers.prototype.offset = function(el) {
-    var _x = 0;
-    var _y = 0;
-    while( el && !isNaN( el.offsetLeft ) && !isNaN( el.offsetTop ) ) {
-        _x += el.offsetLeft - el.scrollLeft;
-        _y += el.offsetTop - el.scrollTop;
-        el = el.offsetParent;
-    }
-    return { top: _y, left: _x };
-}
-boxers.prototype.created = function(box) {
-	for(var i=0;i<this.callbacks.length;i++) {
-		this.callbacks[i].call(this,box);
-	}
-}
-boxers.prototype.onFinish = function(callback) {
-	this.callbacks.push(callback);
-};
-boxers.prototype.clear = function() {
-	for (var i=0;i<this.boxes.length;i++) {
-		this.boxes[i].parentNode.removeChild(this.boxes[i]);
-	}
-	this.boxes = [];
-}
+
 $(document).ready(function() {
-/*
-	var boxes = new boxers('ayo');
+	var boxes = new boxers.create('ayo');
 	boxes.onFinish(function(box) {
-		console.log(box);
+		console.log(JSON.stringify(this.data));
 	});
 	
 	$("#clear").click(function() {
 		boxes.clear();
 	});
+/*
 */
 
+/*
 	var canvas = document.getElementById("canvas");
 	 var image = document.getElementById('ayo');
 	 image.onload = function() {
@@ -155,71 +31,62 @@ $(document).ready(function() {
 		    xes = {}
 		    yes = {};
 
-function hexToRgb(hex) {
-    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    return result ? {
-        r: parseInt(result[1], 16),
-        g: parseInt(result[2], 16),
-        b: parseInt(result[3], 16)
-    } : null;
-}
-var color = '#000000',
-	thergb = hexToRgb(color);
-var threshold = 10;
-function pushMe(point) {
-	var x = point.x,
-		y = point.y;
-  if (!xes[x]) xes[x] = 0;
-  xes[x] += 1;
-  if (!yes[y]) yes[y] = 0;
-  yes[y] += 1;
-}
-for(var y=0; y<canvas.height; y++){
-    for(var x=0; x<canvas.width; x++){
-		var offset = (y * canvas.width + x) * 4;
-      var r = imageData.data[offset];
-      var g = imageData.data[offset + 1];
-      var b = imageData.data[offset + 2];
-      var thisPoint = {x:x,y:y};
-      if (r  <threshold || g <threshold || b  <threshold) {
-      points.push(thisPoint);
-      pushMe(thisPoint);
-      }
+	function hexToRgb(hex) {
+	    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+	    return result ? {
+	        r: parseInt(result[1], 16),
+	        g: parseInt(result[2], 16),
+	        b: parseInt(result[3], 16)
+	    } : null;
 	}
-}
-ctx.fillStyle = "rgb(255,255,0)";
-//ctx.beginPath();
-for(var i = 0; i < points.length; i++){
-	//ctx.moveTo(points[i]);
-    ctx.fillRect(points[i].x,points[i].y,1,1);  
-//ctx.stroke();
-}
-
-ctx.fillStyle = "rgb(255,0,0)";
-for (var i in xes) {
-    if (xes[i] > 200) {
-		ctx.beginPath();  
-    	ctx.moveTo(i,0);
-    	ctx.lineTo(i,canvas.height)
-    	ctx.closePath();
-    	ctx.stroke();
+	var color = '#000000',
+		thergb = hexToRgb(color);
+	var threshold = 240;
+	function pushMe(point) {
+		var x = point.x,
+			y = point.y;
+	  if (!xes[x]) xes[x] = 0;
+	  xes[x] += 1;
+	  if (!yes[y]) yes[y] = 0;
+	  yes[y] += 1;
 	}
-}
-ctx.fillStyle = "rgb(255,0,0)";
-for (var i in yes) {
-    if (yes[i] > 300) {
-		ctx.beginPath();  
-    	ctx.moveTo(0,i);
-    	ctx.lineTo(canvas.width,i)
-    	ctx.closePath();
-    	ctx.stroke();
+	var matrix = new Array(canvas.height*canvas.width);
+	var count = 0,
+	total = 0;
+	for(var y=0; y<canvas.height; y++){
+	    for(var x=0; x<canvas.width; x++){
+			var offset = (y * canvas.width + x) * 4;
+	      var r = imageData.data[offset];
+	      var g = imageData.data[offset + 1];
+	      var b = imageData.data[offset + 2];
+	      var lala = true;
+	      if (r  > threshold && g > threshold && b > threshold) {
+		  	lala = false;
+		  	count++;
+	      }
+	      total++;
+	      matrix[x*y] = lala;
+		}
 	}
-}
+	var labels = BlobExtraction(matrix, canvas.width, canvas.height);
+	var bounds = BlobBounds(labels,  canvas.width, canvas.height);
+	var logger = '';
+	for (var i=0;i < 40;i++) {
+		logger += matrix[i*20];
+	}
+	console.log(matrix.length);
+	console.log(bounds.length);
 
 //
 
 	}
+*/
 });
+
+
+
+
+
 </script>
 <style type='text/css'>
 .box {
@@ -231,6 +98,5 @@ for (var i in yes) {
 <body>
 <img id='ayo' src="sample.png" width="200" border="1"/>
 <button id='clear'>test</button>
-<canvas id="canvas"/>
 </body>
 </html>
