@@ -76,8 +76,8 @@ boxers.interactive.prototype.link = function( image,wrapper ) {
 		}
 		wrapper.style.width = image.naturalWidth;
 		wrapper.style.height = image.naturaHeight;
-		wrapper.style.top = calculate('top',image,self.data);
-		wrapper.style.left = calculate('left',image,self.data);
+		wrapper.style.top = calculate('top',image,self.data) + 'px';
+		wrapper.style.left = calculate('left',image,self.data) + 'px';
 	}
 }
 boxers.relative = function(value,parent) {
@@ -118,8 +118,8 @@ boxers.wrap = function(element) {
 	browser.className = 'box-browser';
 	wrapper.className = 'boxWrapper';
 	wrapper.style.position = 'relative';
-	wrapper.style.width = image.offsetWidth;
-	wrapper.style.height = image.offsetHeight;
+	wrapper.style.width = wrapper.width = image.offsetWidth + 'px';
+	wrapper.style.height = wrapper.height = image.offsetHeight + 'px';
 	return {wrapper:wrapper,image:image};
 }
 boxers.create.prototype.startRecording = function() {
@@ -175,10 +175,10 @@ boxers.create.prototype.startingPoint = function( event ) {
 boxers.createBox = function(x,y,width,height,wrapper) {
 	var box = document.createElement('div');
 	box.setAttribute('class','box'); 
-	box.style.left = x; 
-	box.style.top = y; 
-	box.style.width = width; 
-	box.style.height = height; 
+	box.style.left = x + 'px'; 
+	box.style.top = y + 'px'; 
+	box.style.width = width + 'px'; 
+	box.style.height = height + 'px'; 
 	wrapper.appendChild(box); //replace reference to original
 	return box;
 }
@@ -192,10 +192,10 @@ boxers.create.prototype.endingPoint = function( event ) {
 		height = Math.abs(deltaY);
 	this.width = width;
 	this.height = height;
-	if (deltaX > 0) this.box.style.left = this.end.x;
-	if (deltaY > 0) this.box.style.top = this.end.y;
-	this.box.style.width = width;
-	this.box.style.height = height;
+	if (deltaX > 0) this.box.style.left = this.end.x + 'px';
+	if (deltaY > 0) this.box.style.top = this.end.y + 'px';
+	this.box.style.width = width + 'px';
+	this.box.style.height = height + 'px';
 }
 
 //cribbed from http://stackoverflow.com/questions/442404/dynamically-retrieve-html-element-x-y-position-with-javascript
