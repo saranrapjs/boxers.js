@@ -7,7 +7,9 @@
 
 
 $(document).ready(function() {
-	var boxes = new boxers.create('ayo');
+	var boxes = new boxers.create('ayo', {
+		boxes:[{"left":89,"top":164,"width":39,"height":57,"parentWidth":200,"parentHeight":259},{"left":31,"top":116,"width":92,"height":86,"parentWidth":200,"parentHeight":259},{"left":42,"top":64,"width":108,"height":73,"parentWidth":200,"parentHeight":259},{"left":79,"top":151,"width":99,"height":33,"parentWidth":200,"parentHeight":259}]
+	});
 	boxes.onFinish(function(box) {
 		console.log(JSON.stringify(this.data));
 	});

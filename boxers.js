@@ -89,7 +89,7 @@ boxers.create = function(element,options) {
 	var self = this,
 		image = document.getElementById(element);
 	this.callbacks = [];
-	this.boxes = [];
+	this.boxes = (options.boxes) ? options.boxes : [];
 	this.data = [];
 	image.onload = function() {
 		self.load(image);
@@ -103,6 +103,7 @@ boxers.create.prototype.load = function(image) {
 	var wrapped = boxers.wrap(image);
 	this.image = wrapped.image;
 	this.wrapper = wrapped.wrapper;
+	this.import(this.boxes);
 	this.image.ondragstart = function() { return false; }
 	this.wrapper.onmousedown = function(event) {
 		self.startingPoint(event);
@@ -172,6 +173,13 @@ boxers.create.prototype.startingPoint = function( event ) {
 	this.box = boxers.createBox(this.start.x,this.start.y,1,1,this.wrapper);
 	this.boxes.push(this.box);
 }
+boxers.create.prototype.import = function(boxes) {
+	for (var i in boxes) {
+		var box = boxes[i];
+		this.data.push(box); //add to the list
+		boxers.createBox(box.left,box.top,box.width,box.height,this.wrapper); //and visually create
+	}
+}
 boxers.createBox = function(x,y,width,height,wrapper) {
 	var box = document.createElement('div');
 	box.setAttribute('class','box'); 
@@ -202,6 +210,7 @@ boxers.create.prototype.endingPoint = function( event ) {
 boxers.create.prototype.offset = function(el) {
     var _x = 0;
     var _y = 0;
+    return $(el).offset(); //NB - this is a total hack!
     while( el && !isNaN( el.offsetLeft ) && !isNaN( el.offsetTop ) ) {
         _x += el.offsetLeft - el.scrollLeft;
         _y += el.offsetTop - el.scrollTop;
